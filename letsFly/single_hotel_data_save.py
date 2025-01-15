@@ -1,6 +1,7 @@
 import requests
 import json
 from datetime import datetime 
+import os
 
 
 class TravelGateXAPI:
@@ -146,7 +147,7 @@ class TravelGateXAPI:
             if response.status_code == 200:
                 data = response.json()
                 get_token = data.get("data", {}).get("hotelX", {}).get("hotels", {}).get("token", {})
-                print(get_token)
+                # print(get_token)
                 
                 hotels = data.get("data", {}).get("hotelX", {}).get("hotels", {}).get("edges", [])
                 extracted_data = []
@@ -235,46 +236,110 @@ class TravelGateXAPI:
                     else:
                         amenities_list = "NULL"
 
+
                     data = {
-                        "Number": x,
                         "createdAt": createdAt_str,
                         "timeStamp": timeStamp,
                         "hotel_id": hotel_code,
                         "name": hotel_name,
                         "name_local": hotel_name,
+                        "name_formerly_name": hotel_name,
                         "destination_code": "NULL",
                         "country_code": hotel_data.get("location", {}).get("country") or "NULL",
+                        "brand_text": "NULL",
+                        "property_type": hotel_data.get("propertyType", {}) or "NULL",
                         "star_rating": hotel_data.get("categoryCode") or "NULL",
-                        "brand": "NULL",
+                        "chain": hotel_data.get("chainCode") or "NULL",
+                        "brand:": "NULL",
+                        "logo": "NULL",
                         "primary_photo": primary_photo,
                         "review_rating": {
                             "source": "N/A",
                             "number_of_reviews": "N/A",
                             "rating_average": "N/A",
                             "popularity": "N/A"
-                        },
+                            },
+                            
                         "policies": {
                             "checkin": {
                                 "begin_time": hotel_data.get("checkIn") or "NULL",
                                 "end_time": hotel_data.get("checkOut") or "NULL",
-                            },
+                                "instructions": "NULL",
+                                "special_instructions": "NULL",
+                                "min_age":  "NULL",
+                                },
                             "checkout": {
                                 "time": hotel_data.get("checkOut") or "NULL",
+                                },
+                            "fees": {
+                                "optional": "NULL",
+                                "mandatory": "NULL",
+                                },
+                            "know_before_you_go": "NULL",
+                            "pets": "NULL",
+                            "remark": "NULL",
+                            "child_and_extra_bed_policy": {
+                                "infant_age": "NULL",
+                                "children_age_from": "NULL",
+                                "children_age_to": "NULL",
+                                "children_stay_free": "NULL",
+                                "min_guest_age": "NULL"
+                                },
+                            "nationality_restrictions": "NULL",
                             },
-                        },
+
                         "address": {
                             "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude") or "NULL",
                             "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude") or "NULL",
-                        },
+                            "address_line_1": hotel_data.get("location", {}).get("address") or "NULL",
+                            "address_line_2": "NULL",
+                            "city": hotel_data.get("location", {}).get("city") or "NULL",
+                            "state": "NULL",
+                            "country": "NULL",
+                            "country_code": hotel_data.get("location", {}).get("country") or "NULL",
+                            "postal_code": hotel_data.get("location", {}).get("zipCode") or "NULL",
+                            "full_address": hotel_data.get("location", {}).get("address") or "NULL",
+                            "google_map_link": google_map_site_link,
+                            "local_lang": {
+                                "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude") or "NULL",
+                                "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude") or "NULL",
+                                "address_line_1": hotel_data.get("location", {}).get("address") or "NULL",
+                                "address_line_2": "NULL",
+                                "city": hotel_data.get("location", {}).get("city") or "NULL",
+                                "state": "NULL",
+                                "country": "NULL",
+                                "country_code": hotel_data.get("location", {}).get("country") or "NULL",
+                                "postal_code": hotel_data.get("location", {}).get("zipCode") or "NULL",
+                                "full_address": hotel_data.get("location", {}).get("address") or "NULL",
+                                "google_map_link": google_map_site_link
+                                },
+                                "mapping": {
+                                    "continent_id": "NULL",
+                                    "country_id": "NULL",
+                                    "province_id": "NULL",
+                                    "state_id": "NULL",
+                                    "city_id": "NULL",
+                                    "area_id": "NULL",
+                                },
+                            },
+                        
                         "contact": {
-                            "email": hotel_data.get("contact", {}).get("email") or "NULL",
-                            "phone": hotel_data.get("contact", {}).get("telephone") or "NULL",
-                            "fax": hotel_data.get("contact", {}).get("fax") or "NULL",
-                        },
+                                "email": hotel_data.get("contact", {}).get("email") or "NULL",
+                                "phone": hotel_data.get("contact", {}).get("telephone") or "NULL",
+                                "fax": hotel_data.get("contact", {}).get("fax") or "NULL",
+                                "website": hotel_data.get("contact", {}).get("web") or "NULL",
+                                },
                         "description": description_info,
                         "room_type": "NULL",
+                        "sponken_language": "NULL",
                         "amenities": amenities_list,
-                        "hotel_photo": hotel_photos
+                        "facilities": "NULL",
+                        "hotel_photo": hotel_photos,
+                        "point_of_interests": "NULL",
+                        "nearest_airports": "NULL",
+                        "train_stations": "NULL",
+                        "connected_locations": "NULL",
+                        "stadiums": "NULL"
                     }
                     extracted_data.append(data)
                 return extracted_data
@@ -288,20 +353,41 @@ class TravelGateXAPI:
 
     def display_hotels(self, hotel_list):
         return json.dumps(hotel_list, indent=4)
+    
+    def save_hotels_to_json(self, hotel_list, output_dir):
+        try:
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            filename = f"hotel_data_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
+            file_path = os.path.join(output_dir, filename)
+
+            with open(file_path, "w", encoding="utf-8") as json_file:
+                json.dump(hotel_list, json_file, ensure_ascii=False, indent=4)
+            print(f"Hotel data saved to {file_path}")
+        except Exception as e:
+            print(f"An error occurred while saving hotel data: {str(e)}")
+
+
+
+
+def fetch_and_save_hotels_in_json(criteria_hotels, output_dir, api_key):
+    travelgatex_api = TravelGateXAPI(api_key)
+    try:
+        response = travelgatex_api.fetch_hotels(criteria_hotels)
+        hotel_list = travelgatex_api.extract_hotel_data(response)
+        if hotel_list:
+            travelgatex_api.save_hotels_to_json(hotel_list, output_dir)
+        else:
+            print("No hotel data to save.")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 # Example usage
 if __name__ == "__main__":
     api_key = "884eaecb-a32a-44b3-9820-ad5490ec1ee0"
-    criteria_hotels = {"access": "29887", "maxSize": 1}
-    
+    criteria_hotels = {"access": "29910", "maxSize": 1}
     output_folder = "D:/content_for_hotel_json/HotelInfo/hotelston"
 
-    travelgatex_api = TravelGateXAPI(api_key)
-    try:
-        response = travelgatex_api.fetch_hotels(criteria_hotels)
-        hotel_list = travelgatex_api.extract_hotel_data(response)
-        json_response = travelgatex_api.display_hotels(hotel_list)
-        print(json_response)
-    except Exception as e:
-        print(f"Error: {e}")
+    fetch_and_save_hotels_in_json(criteria_hotels, output_folder, api_key)
