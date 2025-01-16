@@ -223,20 +223,23 @@ class TravelGateXAPI:
                                 "text": text
                             })
 
-                    all_amenities = hotel_data.get("allAmenities", {}).get("edges", [])
 
-                    if isinstance(all_amenities, list):
-                        amenities_list = [
-                            {
-                                "type": amenity.get("node", {}).get("amenityData", {}).get("amenityCode", "NULL"),
-                                "title": "NULL",  
-                                "icon": "mdi mdi-alpha-f-circle-outline"
-                            }
-                            for amenity in all_amenities if isinstance(amenity, dict)
-                        ]
-                        amenities_list = amenities_list if amenities_list else "NULL"
-                    else:
-                        amenities_list = "NULL"
+                    # # THis is amenities section.
+                    # all_amenities = hotel_data.get("allAmenities", {}).get("edges", [])
+
+                    # if isinstance(all_amenities, list):
+                    #     amenities_list = [
+                    #         {
+                    #             "type": amenity.get("node", {}).get("amenityData", {}).get("amenityCode", "NULL"),
+                    #             "title": "NULL",  
+                    #             "icon": "mdi mdi-alpha-f-circle-outline"
+                    #         }
+                    #         for amenity in all_amenities if isinstance(amenity, dict)
+                    #     ]
+                    #     amenities_list = amenities_list if amenities_list else "NULL"
+                    # else:
+                    #     amenities_list = "NULL"
+
 
                     data = {
                         "createdAt": createdAt_str,
@@ -333,7 +336,7 @@ class TravelGateXAPI:
                         "description": description_info,
                         "room_type": "NULL",
                         "sponken_language": "NULL",
-                        "amenities": amenities_list,
+                        # "amenities": amenities_list,
                         "facilities": "NULL",
                         "hotel_photo": hotel_photos,
                         "point_of_interests": "NULL",
@@ -372,7 +375,6 @@ def fetch_and_save_hotels_in_json(criteria_hotels, output_dir):
                     hotel_id = hotel_data.get("hotel_id", "unknown")  
                     output_file = os.path.join(output_dir, f"{hotel_id}.json")
 
-                    # Skip if the file for this hotel ID already exists
                     if os.path.exists(output_file):
                         print(f"Skipping........................................................ {hotel_id}, file already exists.")
                         continue
@@ -384,14 +386,14 @@ def fetch_and_save_hotels_in_json(criteria_hotels, output_dir):
                     print(f"Hotel data saved to {output_file}")
                 except Exception as e:
                     print(f"Error saving hotel data: {e}")
-                    continue  # Skip this hotel and proceed to the next
+                    continue  
         except Exception as e:
             print(f"Error fetching hotels: {e}")
-            continue  # Skip this API request and proceed with the next
+            continue  
 
 
 # Example usage
 if __name__ == "__main__":
-    criteria_hotels = {"access": "29887", "maxSize": 50}
+    criteria_hotels = {"access": "29887"}
     output_folder = "D:/content_for_hotel_json/HotelInfo/hotelston"
     fetch_and_save_hotels_in_json(criteria_hotels, output_folder)
