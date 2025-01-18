@@ -223,20 +223,20 @@ class TravelGateXAPI:
                                 "text": text
                             })
 
-                    all_amenities = hotel_data.get("allAmenities", {}).get("edges", [])
+                    # all_amenities = hotel_data.get("allAmenities", {}).get("edges", [])
 
-                    if isinstance(all_amenities, list):
-                        amenities_list = [
-                            {
-                                "type": amenity.get("node", {}).get("amenityData", {}).get("amenityCode", "NULL"),
-                                "title": "NULL",  
-                                "icon": "mdi mdi-alpha-f-circle-outline"
-                            }
-                            for amenity in all_amenities if isinstance(amenity, dict)
-                        ]
-                        amenities_list = amenities_list if amenities_list else "NULL"
-                    else:
-                        amenities_list = "NULL"
+                    # if isinstance(all_amenities, list):
+                    #     amenities_list = [
+                    #         {
+                    #             "type": amenity.get("node", {}).get("amenityData", {}).get("amenityCode", "NULL"),
+                    #             "title": "NULL",  
+                    #             "icon": "mdi mdi-alpha-f-circle-outline"
+                    #         }
+                    #         for amenity in all_amenities if isinstance(amenity, dict)
+                    #     ]
+                    #     amenities_list = amenities_list if amenities_list else "NULL"
+                    # else:
+                    #     amenities_list = "NULL"
 
                     data = {
                         "createdAt": createdAt_str,
@@ -333,7 +333,7 @@ class TravelGateXAPI:
                         "description": description_info,
                         "room_type": "NULL",
                         "sponken_language": "NULL",
-                        "amenities": amenities_list,
+                        # "amenities": amenities_list,
                         "facilities": "NULL",
                         "hotel_photo": hotel_photos,
                         "point_of_interests": "NULL",
@@ -392,6 +392,6 @@ def fetch_and_save_hotels_in_json(criteria_hotels, output_dir):
 
 # Example usage
 if __name__ == "__main__":
-    criteria_hotels = {"access": "30336", "maxSize": 10}
+    criteria_hotels = {"access": "30336"}
     output_folder = "D:/content_for_hotel_json/HotelInfo/illusionshotel"
     fetch_and_save_hotels_in_json(criteria_hotels, output_folder)

@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-from sqlalchemy.dialects.mysql import insert
+
 
 class HotelDataProcessor:
 
@@ -51,7 +51,7 @@ class HotelDataProcessor:
                 "status": "Update",
                 "hotel_city": data.get("address", {}).get("city", "NULL"),
                 "hotel_name": data.get("name", "NULL"),
-                "hotel_country": data.get("address", {}).get("country"),
+                "hotel_country": data.get("address", {}).get("country", "NULL"),
                 "hotel_longitude": data.get("address", {}).get("longitude", "NULL"),
                 "hotel_latitude": data.get("address", {}).get("latitude", "NULL"),
                 "country_code": data.get("address", {}).get("country_code", "NULL"),
@@ -60,6 +60,24 @@ class HotelDataProcessor:
         else:
             print("Error: Response data is invalid or status code is not 200.")
             return None
+
+    def upload_data_to_db(self, parsed_data):
+        if not parsed_data:
+            print("No data to upload.")
+            return
+
+        session = self.Session()
+        try:
+            insert_stmt = self.table.insert().values(parsed_data)
+            session.execute(insert_stmt)
+            session.commit()
+            print("Data uploaded successfully.")
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"Database error: {e}")
+        finally:
+            session.close()
+
 
     def upload_data_to_db(self, parsed_data):
         if not parsed_data:
@@ -87,29 +105,6 @@ class HotelDataProcessor:
         finally:
             session.close()
 
-    def upload_data_to_db_bulk(self, data_batch):
-        if not data_batch:
-            print("No data to upload.")
-            return
-
-        session = self.Session()
-        try:
-            insert_stmt = insert(self.table).values(data_batch)
-            # Use ON DUPLICATE KEY UPDATE for upsert logic
-            upsert_stmt = insert_stmt.on_duplicate_key_update(
-                last_update=insert_stmt.inserted.last_update,
-                ModifiedOn=insert_stmt.inserted.ModifiedOn,
-                status=insert_stmt.inserted.status,
-                content_update_status=insert_stmt.inserted.content_update_status
-            )
-            session.execute(upsert_stmt)
-            session.commit()
-            print(f"Batch of {len(data_batch)} records uploaded successfully.")
-        except SQLAlchemyError as e:
-            session.rollback()
-            print(f"Database error: {e}")
-        finally:
-            session.close()
 
 
 
@@ -123,12 +118,14 @@ def initialize_tracking_file(file_path, systemid_list):
     else:
         print(f"Tracking file already exists: {file_path}")
 
+
 def read_tracking_file(file_path):
     """
-    Reads the tracking file and returns a list of remaining SystemIds.
+    Reads the tracking file and returns a set of remaining SystemIds.
     """
     with open(file_path, "r", encoding="utf-8") as file:
-        return [line.strip() for line in file.readlines() if line.strip()]
+        return {line.strip() for line in file.readlines()}
+
 
 def write_tracking_file(file_path, remaining_ids):
     """
@@ -139,6 +136,7 @@ def write_tracking_file(file_path, remaining_ids):
             file.write("\n".join(remaining_ids) + "\n")
     except Exception as e:
         print(f"Error writing to tracking file: {e}")
+
 
 def append_to_cannot_find_file(file_path, systemid):
     """
@@ -151,40 +149,13 @@ def append_to_cannot_find_file(file_path, systemid):
         print(f"Error appending to 'Cannot find any data' file: {e}")
 
 
-
-BATCH_SIZE = 100  
-
 if __name__ == "__main__":
     supplier_code = "illusionshotel"
-    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/tracking_file_for_upload_data_in_iit_table.txt"
-    cannot_find_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/cannot_find_data.txt"
+    hotel_id = "9999-19654524"
 
     processor = HotelDataProcessor()
 
-    # Read remaining hotel IDs from the tracking file
-    remaining_ids = read_tracking_file(tracking_file_path)
-    while remaining_ids:
-        data_batch = []
-        current_batch = remaining_ids[:BATCH_SIZE]
-        
-        for hotel_id in current_batch:
-            print(f"Processing hotel_id: {hotel_id}")
-            response = processor.get_data_from_json(supplier_code, hotel_id)
-            parsed_data = processor.parse_response_data(response)
+    response = processor.get_data_from_json(supplier_code, hotel_id)
+    parsed_data = processor.parse_response_data(response)
 
-            if parsed_data:
-                data_batch.append(parsed_data)
-            else:
-                print(f"Cannot find data for hotel_id: {hotel_id}")
-                append_to_cannot_find_file(cannot_find_file_path, hotel_id)
-
-        # Upload the batch to the database
-        processor.upload_data_to_db_bulk(data_batch)
-
-        # Remove processed IDs from the tracking file
-        remaining_ids = remaining_ids[BATCH_SIZE:]
-        write_tracking_file(tracking_file_path, remaining_ids)
-
-        print(f"Remaining IDs to process: {len(remaining_ids)}")
-
-    print("All hotel IDs have been processed.")
+    processor.upload_data_to_db(parsed_data)

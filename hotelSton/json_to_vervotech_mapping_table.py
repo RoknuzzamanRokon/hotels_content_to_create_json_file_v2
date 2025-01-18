@@ -46,12 +46,12 @@ class HotelDataProcessor:
             return {
                 "last_update": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
                 "ModifiedOn": datetime.now(timezone.utc).strftime("%Y/%m/%d %H:%M:%S.%f"),
-                "ProviderFamily": "illusionshotel",
+                "ProviderFamily": "hotelston",
                 "ProviderHotelId": data.get("hotel_id", "NULL"),
                 "status": "Update",
                 "hotel_city": data.get("address", {}).get("city", "NULL"),
                 "hotel_name": data.get("name", "NULL"),
-                "hotel_country": data.get("address", {}).get("country"),
+                "hotel_country": data.get("address", {}).get("country") or None,
                 "hotel_longitude": data.get("address", {}).get("longitude", "NULL"),
                 "hotel_latitude": data.get("address", {}).get("latitude", "NULL"),
                 "country_code": data.get("address", {}).get("country_code", "NULL"),
@@ -155,8 +155,8 @@ def append_to_cannot_find_file(file_path, systemid):
 BATCH_SIZE = 100  
 
 if __name__ == "__main__":
-    supplier_code = "illusionshotel"
-    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/tracking_file_for_upload_data_in_iit_table.txt"
+    supplier_code = "hotelston"
+    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/upload_tracking_file_for_upload_data_in_vervotech_table.txt"
     cannot_find_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/cannot_find_data.txt"
 
     processor = HotelDataProcessor()

@@ -198,30 +198,30 @@ class TravelGateXAPI:
                     address_query = f"{address_line_1}, {hotel_name}"
                     google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
-                    description = hotel_data.get("descriptions", [])
-                    if not isinstance(description, (list, dict)):
-                        description = []  
-                    description_info = []
+                    # description = hotel_data.get("descriptions", [])
+                    # if not isinstance(description, (list, dict)):
+                    #     description = []  
+                    # description_info = []
 
-                    for desc in description:
-                        if not isinstance(desc, dict):
-                            continue
+                    # for desc in description:
+                    #     if not isinstance(desc, dict):
+                    #         continue
 
-                        desc_type = desc.get("type", "NULL")
-                        texts = desc.get("texts", [])
+                    #     desc_type = desc.get("type", "NULL")
+                    #     texts = desc.get("texts", [])
 
-                        if not isinstance(texts, list):
-                            continue
+                    #     if not isinstance(texts, list):
+                    #         continue
 
-                        for text_entry in texts:
-                            if not isinstance(text_entry, dict):
-                                continue
+                    #     for text_entry in texts:
+                    #         if not isinstance(text_entry, dict):
+                    #             continue
 
-                            text = text_entry.get("text", "NULL")
-                            description_info.append({
-                                "title": desc_type,
-                                "text": text
-                            })
+                    #         text = text_entry.get("text", "NULL")
+                    #         description_info.append({
+                    #             "title": desc_type,
+                    #             "text": text
+                    #         })
 
 
                     # # THis is amenities section.
@@ -333,7 +333,7 @@ class TravelGateXAPI:
                                 "fax": hotel_data.get("contact", {}).get("fax") or "NULL",
                                 "website": hotel_data.get("contact", {}).get("web") or "NULL",
                                 },
-                        "description": description_info,
+                        # "description": description_info,
                         "room_type": "NULL",
                         "sponken_language": "NULL",
                         # "amenities": amenities_list,
