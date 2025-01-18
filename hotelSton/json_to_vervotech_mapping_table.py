@@ -44,9 +44,9 @@ class HotelDataProcessor:
         if response and response.status_code == 200:
             data = response.json()
             return {
+                "ProviderFamily": "hotelston",
                 "last_update": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
                 "ModifiedOn": datetime.now(timezone.utc).strftime("%Y/%m/%d %H:%M:%S.%f"),
-                "ProviderFamily": "hotelston",
                 "ProviderHotelId": data.get("hotel_id", "NULL"),
                 "status": "Update",
                 "hotel_city": data.get("address", {}).get("city", "NULL"),
@@ -156,8 +156,8 @@ BATCH_SIZE = 100
 
 if __name__ == "__main__":
     supplier_code = "hotelston"
-    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/upload_tracking_file_for_upload_data_in_vervotech_table.txt"
-    cannot_find_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/cannot_find_data.txt"
+    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/hotelston/upload_tracking_file_for_upload_data_in_vervotech_table.txt"
+    cannot_find_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/hotelston/cannot_find_data.txt"
 
     processor = HotelDataProcessor()
 
