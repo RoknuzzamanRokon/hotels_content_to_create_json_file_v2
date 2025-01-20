@@ -29,7 +29,6 @@ class VervotechHotelData:
     
     
     def create_content_follow_hotel_id(self, data):
-        hotels = []
         for hotel in data.get("Hotels", []):
             for provider_hotel in hotel.get("ProviderHotels", []):
 
@@ -87,8 +86,8 @@ class VervotechHotelData:
                     })
 
                 data = {
-                    "createdAt": createdAt_str,
-                    "timeStamp": timeStamp,
+                    "created": createdAt_str,
+                    "timestamp": timeStamp,
                     "hotel_id": provider_hotel.get("ProviderHotelId") or "NULL",
                     "name": provider_hotel.get("Name") or "NULL",
                     "name_local": provider_hotel.get("Name") or "NULL",
@@ -106,7 +105,7 @@ class VervotechHotelData:
                         "source": "N/A",
                         "number_of_reviews": provider_hotel.get("Reviews") or "NULL",
                         "rating_average": "N/A",
-                        "popularity": provider_hotel.get("PopularityScore") or "NULL",
+                        "popularity_score": provider_hotel.get("PopularityScore") or "NULL",
                         },
                     "policies": {
                         "checkin": {
@@ -146,7 +145,7 @@ class VervotechHotelData:
                             "country_code": provider_hotel.get("Contact", {}).get("Address", {}).get("CountryCode") or "NULL",
                             "postal_code": provider_hotel.get("Contact", {}).get("Address", {}).get("PostalCode") or "NULL",
                             "full_address": f"{provider_hotel.get("Contact", {}).get("Address", {}).get("Line1") or "NULL"}, {provider_hotel.get("Contact", {}).get("Address", {}).get("Line2") or "NULL"}",
-                            "google_map_link": google_map_site_link,
+                            "google_map_site_link": google_map_site_link,
                             "local_lang": {
                                 "latitude": provider_hotel.get("GeoCode", {}).get("Lat") or "NULL",
                                 "longitude": provider_hotel.get("GeoCode", {}).get("Long") or "NULL",
@@ -158,7 +157,7 @@ class VervotechHotelData:
                                 "country_code": provider_hotel.get("Contact", {}).get("Address", {}).get("CountryCode") or "NULL",
                                 "postal_code": provider_hotel.get("Contact", {}).get("Address", {}).get("PostalCode") or "NULL",
                                 "full_address": f"{provider_hotel.get("Contact", {}).get("Address", {}).get("Line1") or "NULL"}, {provider_hotel.get("Contact", {}).get("Address", {}).get("Line2") or "NULL"}",
-                                "google_map_link": google_map_site_link
+                                "google_map_site_link": google_map_site_link
                                 },
                                 "mapping": {
                                     "continent_id": "NULL",
@@ -177,7 +176,7 @@ class VervotechHotelData:
                         },
                         "descriptions": descriptions,
                         "room_type": "NULL",
-                        "sponken_language": "NULL",
+                        "spoken_languages": "NULL",
                         "facilities": facilities,
                         "hotel_photo": hotel_photos,
                         "point_of_interests": point_of_interests,
@@ -186,8 +185,7 @@ class VervotechHotelData:
                         "connected_locations": "NULL",
                         "stadiums": "NULL"
                 }
-                hotels.append(data)
-        return hotels
+        return data
 
 
 

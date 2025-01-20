@@ -64,7 +64,7 @@ def get_unique_entries(list_all_id_from_db, done_json, output_file):
 
 
 systemid_list_data = get_all_hotel_id_list(session=session)
-json_file_path = "D:/content_for_hotel_json/HotelInfo/dotw"
+json_file_path = "D:/content_for_hotel_json/HotelInfo/webbeds"
 json_file_list = list_json_file(directory=json_file_path)
 
 
