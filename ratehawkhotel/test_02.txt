@@ -1,0 +1,106 @@
+from sqlalchemy import create_engine, text, MetaData, Table
+from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
+import os
+from sqlalchemy.orm import sessionmaker
+
+
+DATABASE_URL_LOCAL_1 = "mysql+pymysql://root:@localhost/csvdata01_02102024"
+local_engine_1 = create_engine(DATABASE_URL_LOCAL_1)
+Session_1 = sessionmaker(bind=local_engine_1)
+session_1 = Session_1()
+metadata_local_1 = MetaData()
+metadata_local_1.reflect(bind=local_engine_1)
+
+innova_hotels_main = Table('innova_hotels_main', metadata_local_1, autoload_with=local_engine_1)
+
+
+DATABASE_URL_LOCAL_2 = "mysql+pymysql://root:@localhost/innova_db_v1.25"
+local_engine_2 = create_engine(DATABASE_URL_LOCAL_2)
+Session_2 = sessionmaker(bind=local_engine_2)
+session_2 = Session_2()
+metadata_local_2 = MetaData()
+metadata_local_2.reflect(bind=local_engine_2)
+
+global_hotel_list = Table('global_hotel_list', metadata_local_2, autoload_with=local_engine_2)
+
+
+def insert_data_in_chunks(engine_source, engine_target, page_size):
+    print("Starting data insertion process...")
+
+    select_query = text("""
+        SELECT * FROM innova_hotels_main
+        WHERE SupplierCode = 'ratehawkhotel'
+        LIMIT :limit OFFSET :offset
+    """)
+
+    insert_query = text("""
+        INSERT INTO global_hotel_list (
+            supplier_code, hotel_id, VervotechId, GiataCode, destination_code,
+            hotel_name, latitude, longitude, primary_photo, country_code, country, city_code, city, state,
+            state_code, postal_code, address_line_1, address_line_2, star_rating, website, email_address,
+            phone_numbers, fax
+        )
+        VALUES (:supplier_code, :hotel_id, :VervotechId, :GiataCode, destination_code,
+              :hotel_name, :latitude, :longitude, :primary_photo, :country_code, :country, :city_code, :city :state,
+              :state_code, :postal_code, :address_line_1, :address_line_2, :star_rating, :website, :email_address,
+              :phone_numbers, :fax)
+    """)
+
+    try:
+        offset = 0
+        chunk_count = 1
+
+        while True:
+            with engine_source.connect() as source_conn, engine_target.connect() as target_conn:
+                # Fetch a small batch of data at a time
+                result = source_conn.execute(select_query, {'limit': page_size, 'offset': offset}).fetchall()
+
+                if not result:
+                    print("No more records to transfer.")
+                    break
+
+                print(f"Fetched {len(result)} records from the source database.")
+                offset += page_size
+
+                data_to_insert = []
+                for row in result:
+                    data_to_insert.append({
+                        'supplier_code': row['SupplierCode'],
+                        'hotel_id': row['HotelId'],  
+                        'VervotechId': row['VervotechId'],
+                        'GiataCode': row['GiataCode'],
+                        'destination_code': row['DestinationId'],
+                        'hotel_name': row['HotelName'],
+                        'latitude': row['Latitude'],
+                        'longitude': row['Longitude'],
+                        'primary_photo': row['PrimaryPhoto'],
+                        'country_code': row['CountryCode'],
+                        'country': row['Country'],
+                        'city_code': row['CityCode'],
+                        'city': row['City'],
+                        'state': row['State'],
+                        'state_code': row['StateCode'],
+                        'postal_code': row['PostCode'], 
+                        'address_line_1': row['AddressLine1'],
+                        'address_line_2': row['AddressLine2'],
+                        'star_rating': row['HotelStar'],
+                        'website': row['Website'],
+                        'email_address': row['Email'],
+                        'phone_numbers': row['ContactNumber'],
+                        'fax': row['FaxNumber']           
+                    })
+
+                if data_to_insert:
+                    try:
+                        # Execute the bulk insert
+                        target_conn.execute(insert_query, data_to_insert)
+                        print(f"Chunk {chunk_count} inserted successfully.")
+                        chunk_count += 1
+                    except SQLAlchemyError as e:
+                        print(f"Error during insert operation for chunk {chunk_count}: {e}")
+
+    except SQLAlchemyError as e:
+        print(f"Error during database operation: {e}")
+
+    print("Data insertion completed.")
