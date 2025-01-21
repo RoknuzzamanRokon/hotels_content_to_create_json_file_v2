@@ -239,8 +239,8 @@ class TravelGateXAPI:
                     #     amenities_list = "NULL"
 
                     data = {
-                        "createdAt": createdAt_str,
-                        "timeStamp": timeStamp,
+                        "created": createdAt_str,
+                        "timestamp": timeStamp,
                         "hotel_id": hotel_code,
                         "name": hotel_name,
                         "name_local": hotel_name,

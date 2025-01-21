@@ -9,6 +9,9 @@ notebook = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
 pymysql = "*"
+openpyxl = "*"
+mysql = "*"
+mysql-connector-python = "*"
 
 [dev-packages]
 
