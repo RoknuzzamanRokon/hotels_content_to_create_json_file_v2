@@ -266,7 +266,6 @@ class TravelGateXAPI:
                                 "begin_time": hotel_data.get("checkIn") or "NULL",
                                 "end_time": hotel_data.get("checkOut") or "NULL",
                                 "instructions": "NULL",
-                                "special_instructions": "NULL",
                                 "min_age":  "NULL",
                                 },
                             "checkout": {
@@ -300,7 +299,7 @@ class TravelGateXAPI:
                             "country_code": hotel_data.get("location", {}).get("country") or "NULL",
                             "postal_code": hotel_data.get("location", {}).get("zipCode") or "NULL",
                             "full_address": hotel_data.get("location", {}).get("address") or "NULL",
-                            "google_map_link": google_map_site_link,
+                            "google_map_site_link": google_map_site_link,
                             "local_lang": {
                                 "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude") or "NULL",
                                 "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude") or "NULL",
