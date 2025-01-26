@@ -244,7 +244,7 @@ class TravelGateXAPI:
                         "hotel_id": hotel_code,
                         "name": hotel_name,
                         "name_local": hotel_name,
-                        "name_formerly_name": hotel_name,
+                        "hotel_formerly_name": hotel_name,
                         "destination_code": "NULL",
                         "country_code": hotel_data.get("location", {}).get("country") or "NULL",
                         "brand_text": "NULL",
@@ -258,7 +258,7 @@ class TravelGateXAPI:
                             "source": "N/A",
                             "number_of_reviews": "N/A",
                             "rating_average": "N/A",
-                            "popularity": "N/A"
+                            "popularity_score": "N/A"
                             },
                             
                         "policies": {
@@ -300,7 +300,7 @@ class TravelGateXAPI:
                             "country_code": hotel_data.get("location", {}).get("country") or "NULL",
                             "postal_code": hotel_data.get("location", {}).get("zipCode") or "NULL",
                             "full_address": hotel_data.get("location", {}).get("address") or "NULL",
-                            "google_map_link": google_map_site_link,
+                            "google_map_site_link": google_map_site_link,
                             "local_lang": {
                                 "latitude": hotel_data.get("location", {}).get("coordinates", {}).get("latitude") or "NULL",
                                 "longitude": hotel_data.get("location", {}).get("coordinates", {}).get("longitude") or "NULL",
@@ -312,7 +312,7 @@ class TravelGateXAPI:
                                 "country_code": hotel_data.get("location", {}).get("country") or "NULL",
                                 "postal_code": hotel_data.get("location", {}).get("zipCode") or "NULL",
                                 "full_address": hotel_data.get("location", {}).get("address") or "NULL",
-                                "google_map_link": google_map_site_link
+                                "google_map_site_link": google_map_site_link
                                 },
                                 "mapping": {
                                     "continent_id": "NULL",
@@ -325,22 +325,47 @@ class TravelGateXAPI:
                             },
                         
                         "contact": {
-                                "email": hotel_data.get("contact", {}).get("email") or "NULL",
-                                "phone": hotel_data.get("contact", {}).get("telephone") or "NULL",
-                                "fax": hotel_data.get("contact", {}).get("fax") or "NULL",
-                                "website": hotel_data.get("contact", {}).get("web") or "NULL",
+                                "phone_numbers": [hotel_data.get("contact", {}).get("telephone") or "NULL"],
+                                "email_address": [hotel_data.get("contact", {}).get("email") or "NULL"],
+                                "fax": [hotel_data.get("contact", {}).get("fax") or "NULL"],
+                                "website": [hotel_data.get("contact", {}).get("web") or "NULL"],
                                 },
                         "description": description_info,
                         "room_type": "NULL",
                         "sponken_language": "NULL",
-                        # "amenities": amenities_list,
+                        "amenities": "NULL",
                         "facilities": "NULL",
                         "hotel_photo": hotel_photos,
-                        "point_of_interests": "NULL",
-                        "nearest_airports": "NULL",
-                        "train_stations": "NULL",
-                        "connected_locations": "NULL",
-                        "stadiums": "NULL"
+                         "point_of_interests": [
+                            {
+                                "code": "NULL",
+                                "name": "NULL"
+                            }
+                        ],
+                        "nearest_airports": [
+                            {
+                                "code": "NULL",
+                                "name": "NULL"
+                            }
+                        ],
+                        "train_stations": [
+                            {
+                                "code": "NULL",
+                                "name": "NULL"
+                            }
+                        ],
+                        "connected_locations": [
+                            {
+                                "code": "NULL",
+                                "name": "NULL"
+                            }
+                        ],
+                        "stadiums": [
+                            {
+                                "code": "NULL",
+                                "name": "NULL"
+                            }
+                        ]
                     }
                     extracted_data.append(data)
                 return extracted_data, get_token
@@ -393,5 +418,5 @@ def fetch_and_save_hotels_in_json(criteria_hotels, output_dir):
 # Example usage
 if __name__ == "__main__":
     criteria_hotels = {"access": "30336"}
-    output_folder = "D:/content_for_hotel_json/HotelInfo/illusionshotel"
+    output_folder = "D:/content_for_hotel_json/HotelInfo01/illusionshotel"
     fetch_and_save_hotels_in_json(criteria_hotels, output_folder)

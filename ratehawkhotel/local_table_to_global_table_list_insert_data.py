@@ -1,7 +1,5 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-import os
-
 
 # Source and Target Database URLs
 DATABASE_URL_LOCAL_1 = "mysql+pymysql://root:@localhost/csvdata01_02102024"
@@ -12,13 +10,14 @@ local_engine_1 = create_engine(DATABASE_URL_LOCAL_1)
 local_engine_2 = create_engine(DATABASE_URL_LOCAL_2)
 
 
-def insert_data_in_chunks(engine_source, engine_target, page_size):
+def insert_data_in_chunks(engine_source, engine_target, page_size, start_offset):
     """
-    Inserts data from one table into another in chunks.
+    Inserts data from one table into another in chunks, skipping rows that already exist.
     Parameters:
         engine_source (Engine): SQLAlchemy engine for the source database.
         engine_target (Engine): SQLAlchemy engine for the target database.
         page_size (int): Number of rows to fetch and insert in each batch.
+        start_offset (int): Initial offset to start fetching rows.
     """
     print("Starting data insertion process...")
 
@@ -45,8 +44,15 @@ def insert_data_in_chunks(engine_source, engine_target, page_size):
         )
     """)
 
+    # Query to check if a row already exists in the target table
+    check_query = text("""
+        SELECT 1 FROM global_hotel_list 
+        WHERE supplier_code = :supplier_code AND hotel_id = :hotel_id
+        LIMIT 1
+    """)
+
     try:
-        offset = 0
+        offset = start_offset
         chunk_count = 1
 
         while True:
@@ -61,36 +67,45 @@ def insert_data_in_chunks(engine_source, engine_target, page_size):
                 offset += page_size
 
                 data_to_insert = []
-                for row in result:
-                    data_to_insert.append({
-                        'supplier_code': row[4],
-                        'hotel_id': row[5],
-                        'VervotechId': row[2],
-                        'GiataCode': row[3],
-                        'destination_code': row[6],
-                        'hotel_name': row[15],
-                        'latitude': row[16],
-                        'longitude': row[17],
-                        'primary_photo': row[18],
-                        'country_code': row[13],
-                        'country': row[12],
-                        'city_code': row[8],
-                        'city': row[7],
-                        'state': row[9],
-                        'state_code': row[10],
-                        'postal_code': row[11],
-                        'address_line_1': row[19],
-                        'address_line_2': row[20],
-                        'star_rating': row[26],
-                        'website': row[22],
-                        'email_address': row[23],
-                        'phone_numbers': row[24],
-                        'fax': row[25]
-                    })
+                with engine_target.connect() as target_conn:
+                    for row in result:
+                        # Check if the row already exists
+                        exists = target_conn.execute(check_query, {
+                            'supplier_code': row[4],
+                            'hotel_id': row[5]
+                        }).fetchone()
+
+                        if not exists:
+                            # Add the row to the insert list if it doesn't exist
+                            data_to_insert.append({
+                                'supplier_code': row[4],
+                                'hotel_id': row[5],
+                                'VervotechId': row[2],
+                                'GiataCode': row[3],
+                                'destination_code': row[6],
+                                'hotel_name': row[15],
+                                'latitude': row[16],
+                                'longitude': row[17],
+                                'primary_photo': row[18],
+                                'country_code': row[13],
+                                'country': row[12],
+                                'city_code': row[8],
+                                'city': row[7],
+                                'state': row[9],
+                                'state_code': row[10],
+                                'postal_code': row[11],
+                                'address_line_1': row[19],
+                                'address_line_2': row[20],
+                                'star_rating': row[26],
+                                'website': row[22],
+                                'email_address': row[23],
+                                'phone_numbers': row[24],
+                                'fax': row[25]
+                            })
 
                 if data_to_insert:
                     try:
-                        with engine_target.begin() as target_conn: 
+                        with engine_target.begin() as target_conn:
                             target_conn.execute(insert_query, data_to_insert)
                             print(f"Chunk {chunk_count} inserted successfully.")
                             chunk_count += 1
@@ -104,4 +119,5 @@ def insert_data_in_chunks(engine_source, engine_target, page_size):
     print("Data insertion completed.")
 
 
-insert_data_in_chunks(local_engine_1, local_engine_2, page_size=1000)
+# Start the process with a specific offset and chunk size
+insert_data_in_chunks(local_engine_1, local_engine_2, page_size=1000, start_offset=1054000)
