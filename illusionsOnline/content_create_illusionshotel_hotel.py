@@ -152,6 +152,7 @@ class TravelGateXAPI:
                 # print(get_token)
                 
                 hotels = data.get("data", {}).get("hotelX", {}).get("hotels", {}).get("edges", [])
+                # print(hotels)
                 extracted_data = []
                 x = 0
                 for hotel in hotels:
@@ -162,7 +163,7 @@ class TravelGateXAPI:
                     created_at_dt = datetime.strptime(createdAt_str, "%Y-%m-%dT%H:%M:%S")
                     timeStamp = int(created_at_dt.timestamp())
                     
-                    hotel_data = hotel.get("node", {}).get("hotelData", {})
+                    hotel_data = hotel.get("node", {}).get("hotelData", {}) or "NULL"
                     
                     if hotel_data is None:  
                         hotel_id = hotel.get("node", {}).get("hotelCode", "UNKNOWN")
@@ -187,7 +188,7 @@ class TravelGateXAPI:
                                     "url": media_url
                                 })
 
-                    primary_photo = hotel_photos[0]["url"] if hotel_photos else "NULL"
+                    primary_photo = hotel_photos[0]["url"] or "NULL" if hotel_photos else "NULL"
 
                     address_line_1 = "NULL" 
                     location_data = hotel_data.get("location")  
@@ -198,30 +199,30 @@ class TravelGateXAPI:
                     address_query = f"{address_line_1}, {hotel_name}"
                     google_map_site_link = f"http://maps.google.com/maps?q={address_query.replace(' ', '+')}" if address_line_1 != None else None
 
-                    description = hotel_data.get("descriptions", [])
-                    if not isinstance(description, (list, dict)):
-                        description = []  
-                    description_info = []
+                    # description = hotel_data.get("descriptions", [])
+                    # if not isinstance(description, (list, dict)):
+                    #     description = []  
+                    # description_info = []
 
-                    for desc in description:
-                        if not isinstance(desc, dict):
-                            continue
+                    # for desc in description:
+                    #     if not isinstance(desc, dict):
+                    #         continue
 
-                        desc_type = desc.get("type", "NULL")
-                        texts = desc.get("texts", [])
+                    #     desc_type = desc.get("type", "NULL")
+                    #     texts = desc.get("texts", [])
 
-                        if not isinstance(texts, list):
-                            continue
+                    #     if not isinstance(texts, list):
+                    #         continue
 
-                        for text_entry in texts:
-                            if not isinstance(text_entry, dict):
-                                continue
+                    #     for text_entry in texts:
+                    #         if not isinstance(text_entry, dict):
+                    #             continue
 
-                            text = text_entry.get("text", "NULL")
-                            description_info.append({
-                                "title": desc_type,
-                                "text": text
-                            })
+                    #         text = text_entry.get("text", "NULL")
+                    #         description_info.append({
+                    #             "title": desc_type,
+                    #             "text": text
+                    #         })
 
                     # all_amenities = hotel_data.get("allAmenities", {}).get("edges", [])
 
@@ -249,6 +250,7 @@ class TravelGateXAPI:
                         "country_code": hotel_data.get("location", {}).get("country") or "NULL",
                         "brand_text": "NULL",
                         "property_type": hotel_data.get("propertyType", {}) or "NULL",
+                        "property_type": "NULL",
                         "star_rating": hotel_data.get("categoryCode") or "NULL",
                         "chain": hotel_data.get("chainCode") or "NULL",
                         "brand:": "NULL",
@@ -326,11 +328,11 @@ class TravelGateXAPI:
                         
                         "contact": {
                                 "phone_numbers": [hotel_data.get("contact", {}).get("telephone") or "NULL"],
-                                "email_address": [hotel_data.get("contact", {}).get("email") or "NULL"],
-                                "fax": [hotel_data.get("contact", {}).get("fax") or "NULL"],
-                                "website": [hotel_data.get("contact", {}).get("web") or "NULL"],
+                                "email_address": ["NULL"],
+                                "fax": ["NULL"],
+                                "website": ["NULL"],
                                 },
-                        "description": description_info,
+                        "description": "NULL",
                         "room_type": "NULL",
                         "sponken_language": "NULL",
                         "amenities": "NULL",
