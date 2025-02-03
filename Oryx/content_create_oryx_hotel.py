@@ -374,21 +374,12 @@ def save_json_files_follow_systemId(folder_path, tracking_file_path, cannot_find
             write_tracking_file(tracking_file_path, remaining_ids)
 
         except Exception as e:
+            append_to_cannot_find_file(cannot_find_file_path, systemid)
             remaining_ids.remove(systemid)
             write_tracking_file(tracking_file_path, remaining_ids)
             print(f"Error processing SystemId {systemid}: {e}")
             continue
 
-    try:
-        cannot_find_ids = read_tracking_file(cannot_find_file_path)
-        remaining_ids = read_tracking_file(tracking_file_path)
-        updated_ids = remaining_ids - cannot_find_ids
-        write_tracking_file(tracking_file_path, updated_ids)
-        print(f"Updated tracking file, removed IDs in 'Cannot find any data' list.")
-    except Exception as e:
-        remaining_ids.remove(systemid)
-        write_tracking_file(tracking_file_path, remaining_ids)
-        print(f"Error updating tracking file: {e}")
 
 
 # 'D:/content_for_

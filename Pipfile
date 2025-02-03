@@ -5,13 +5,13 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-notebook = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
 pymysql = "*"
 openpyxl = "*"
 mysql = "*"
 mysql-connector-python = "*"
+notebook = "*"
 
 [dev-packages]
 
