@@ -156,7 +156,7 @@ BATCH_SIZE = 100
 
 if __name__ == "__main__":
     supplier_code = "illusionshotel"
-    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/upload_tracking_file_for_upload_data_in_vervotech_table.txt"
+    tracking_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/All_get_data_for_new_and_missing_file.txt"
     cannot_find_file_path = "D:/Rokon/hotels_content_to_create_json_file_v2/illusionsOnline/cannot_find_data.txt"
 
     processor = HotelDataProcessor()
